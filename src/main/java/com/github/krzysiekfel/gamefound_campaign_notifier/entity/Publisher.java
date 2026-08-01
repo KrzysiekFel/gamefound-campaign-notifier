@@ -13,7 +13,7 @@ public class Publisher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "bgg_id")
+    @Column(name = "bgg_id", nullable = false, unique = true)
     private Long bggId;
 
     @Column(nullable = false)
