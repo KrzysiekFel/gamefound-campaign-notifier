@@ -1,3 +1,12 @@
 spring:
   application:
     name: gamefound-campaign-notifier
+
+  profiles:
+    active: dev
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
