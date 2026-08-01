@@ -38,7 +38,7 @@ public class Subscription {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    public Subscription() {
+    protected Subscription() {
     }
 
     public Subscription(User user, Publisher publisher, SubscriptionFrequency frequency) {

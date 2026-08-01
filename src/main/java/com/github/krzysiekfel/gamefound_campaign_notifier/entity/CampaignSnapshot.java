@@ -32,7 +32,7 @@ public class CampaignSnapshot {
     @CreationTimestamp
     private Instant createdAt;
 
-    public CampaignSnapshot() {
+    protected CampaignSnapshot() {
     }
 
     public CampaignSnapshot(String gameName, String creatorName, Instant startDate, Instant endDate) {
