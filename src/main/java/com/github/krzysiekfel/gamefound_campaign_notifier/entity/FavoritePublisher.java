@@ -8,11 +8,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FavoritePublisher {
 
     @Id
@@ -31,27 +36,8 @@ public class FavoritePublisher {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    protected FavoritePublisher() {
-    }
-
     public FavoritePublisher(User user, Publisher publisher) {
         this.user = user;
         this.publisher = publisher;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public Publisher getPublisher() {
-        return publisher;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
     }
 }

@@ -2,7 +2,7 @@ CREATE TABLE subscription (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id BIGINT NOT NULL,
     publisher_id BIGINT NOT NULL,
-    frequency VARCHAR(50),
+    frequency VARCHAR(7),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL ,
 
     CONSTRAINT fk_subscription_user

@@ -5,11 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CampaignSnapshot {
 
     @Id
@@ -28,41 +33,14 @@ public class CampaignSnapshot {
     @Column(name = "end_date")
     private Instant endDate;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    protected CampaignSnapshot() {
-    }
 
     public CampaignSnapshot(String gameName, String creatorName, Instant startDate, Instant endDate) {
         this.gameName = gameName;
         this.creatorName = creatorName;
         this.startDate = startDate;
         this.endDate = endDate;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getGameName() {
-        return gameName;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
     }
 }

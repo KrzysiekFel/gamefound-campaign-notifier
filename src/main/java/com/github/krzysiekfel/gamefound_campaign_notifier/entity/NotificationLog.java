@@ -8,11 +8,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotificationLog {
 
     @Id
@@ -31,27 +36,8 @@ public class NotificationLog {
     @Column(name = "sent_at", nullable = false, updatable = false)
     private Instant sentAt;
 
-    protected NotificationLog() {
-    }
-
     public NotificationLog(User user, CampaignSnapshot campaign) {
         this.user = user;
         this.campaign = campaign;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public CampaignSnapshot getCampaign() {
-        return campaign;
-    }
-
-    public Instant getSentAt() {
-        return sentAt;
     }
 }

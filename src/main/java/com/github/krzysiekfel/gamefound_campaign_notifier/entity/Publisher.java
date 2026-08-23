@@ -5,8 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Publisher {
 
     @Id
@@ -19,23 +24,8 @@ public class Publisher {
     @Column(nullable = false)
     private String name;
 
-    protected Publisher() {
-    }
-
     public Publisher(Long bggId, String name) {
         this.bggId = bggId;
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getBggId() {
-        return bggId;
-    }
-
-    public String getName() {
-        return name;
     }
 }

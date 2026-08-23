@@ -11,11 +11,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Subscription {
 
     @Id
@@ -31,39 +36,16 @@ public class Subscription {
     private Publisher publisher;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 7)
     private SubscriptionFrequency frequency;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    protected Subscription() {
-    }
-
     public Subscription(User user, Publisher publisher, SubscriptionFrequency frequency) {
         this.user = user;
         this.publisher = publisher;
         this.frequency = frequency;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public Publisher getPublisher() {
-        return publisher;
-    }
-
-    public SubscriptionFrequency getFrequency() {
-        return frequency;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getId() {
-        return id;
     }
 }
