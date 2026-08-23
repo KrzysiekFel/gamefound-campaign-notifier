@@ -23,4 +23,14 @@ public class CampaignSearchController {
     public List<CampaignResponse> searchByCreator(@RequestParam String creatorName) {
         return campaignSearchService.findCampaignsByCreatorName(creatorName);
     }
+
+    @GetMapping("/by-game")
+    public List<CampaignResponse> searchByGame(@RequestParam String gameName) {
+        return campaignSearchService.findCampaignsByGameName(gameName);
+    }
+
+    @GetMapping("/by-user")
+    public List<CampaignResponse> searchByBggUser(@RequestParam String bggUsername) {
+        return campaignSearchService.findCampaignsByBggUsername(bggUsername);
+    }
 }

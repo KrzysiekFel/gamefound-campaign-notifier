@@ -13,10 +13,14 @@ public class CampaignSearchService {
 
     private final GamefoundClient gamefoundClient;
     private final CampaignMapper campaignMapper;
+    private final PublisherService publisherService;
 
-    public CampaignSearchService(GamefoundClient gamefoundClient, CampaignMapper campaignMapper) {
+    public CampaignSearchService(GamefoundClient gamefoundClient,
+                                 CampaignMapper campaignMapper,
+                                 PublisherService publisherService) {
         this.gamefoundClient = gamefoundClient;
         this.campaignMapper = campaignMapper;
+        this.publisherService = publisherService;
     }
 
     public List<CampaignResponse> findCampaignsByCreatorName(String creatorName) {
@@ -29,12 +33,39 @@ public class CampaignSearchService {
     }
 
     public List<CampaignResponse> findCampaignsByGameName(String gameName) {
-        // TODO: resolve game to publisher via BGG, then search campaigns by publisher in gamefound
-        return List.of();
+        // TODO: szukaj gry po nazwie w bazie i zwracaj bggId
+        // int bggGameId = gameService.findByName(gameName).getBggId();
+
+        // TODO: tymczasowo hardkodowane ID do testów, usunąć po implementacji GameService
+        int bggGameId = 0;
+
+        return findCampaignsByPublisherOfGame(bggGameId);
+    }
+
+    public List<CampaignResponse> findCampaignsByPublisherOfGame(int bggGameId) {
+        String publisher = publisherService.getPublisherByGameId(bggGameId);
+
+        if (publisher == null) {
+            return List.of();
+        }
+
+        List<ApiGetCrowdfundingProjectResult> allActive = gamefoundClient.getActiveCrowdfundingProjects();
+
+        return allActive.stream()
+                .filter(project -> project.creatorName().toLowerCase()
+                        .contains(publisher.toLowerCase()))
+                .map(campaignMapper::toCampaignResponse)
+                .toList();
     }
 
     public List<CampaignResponse> findCampaignsByBggUsername(String bggUsername) {
-        // TODO: fetch user's collection from BGG, resolve publishers, search campaigns for each
+        // TODO: pobrać kolekcję usera z BGG
+        // BggCollectionResponse collection = bggClient.getUserCollection(bggUsername, 1, "boardgame");
+
+        // TODO: dla każdej gry z kolekcji znaleźć publishera (rate limit BGG 5s)
+        // TODO: zebrać unikalnych publisherów
+        // TODO: dla każdego publishera szukać kampanii na Gamefound
+
         return List.of();
     }
 }

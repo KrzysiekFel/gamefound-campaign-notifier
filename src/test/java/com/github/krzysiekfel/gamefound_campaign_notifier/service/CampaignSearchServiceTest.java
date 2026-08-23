@@ -27,6 +27,9 @@ public class CampaignSearchServiceTest {
     @Mock
     private CampaignMapper campaignMapper;
 
+    @Mock
+    private PublisherService publisherService;
+
     @InjectMocks
     private CampaignSearchService campaignSearchService;
 
@@ -124,5 +127,31 @@ public class CampaignSearchServiceTest {
                 "https://gamefound.com/project",
                 "https://gamefound.com/image.jpg"
         );
+    }
+
+    @Test
+    void shouldFindCampaignsByPublisherOfGame() {
+        // given
+        when(publisherService.getPublisherByGameId(264220)).thenReturn("Found Publisher");
+        when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List.of(matchingProject));
+        when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
+
+        // when
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherOfGame(264220);
+
+        // then
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenPublisherNotFound() {
+        // given
+        when(publisherService.getPublisherByGameId(666)).thenReturn(null);
+
+        // when
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherOfGame(666);
+
+        // then
+        assertThat(result).isEmpty();
     }
 }
