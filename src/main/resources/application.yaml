@@ -11,6 +11,10 @@ spring:
   flyway:
     enabled: true
 
+server:
+  servlet:
+    context-path: /api
+
 management:
   endpoint:
     health:
@@ -20,3 +24,12 @@ management:
     web:
       exposure:
         include: health
+
+bgg:
+  api:
+    base-url: https://boardgamegeek.com/xmlapi2
+    token: ${BGG_API_TOKEN}
+
+gamefound:
+  api:
+    base-url: https://gamefound.com

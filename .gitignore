@@ -28,6 +28,7 @@ target/
 # ======================
 
 *.class
+src/main/resources/application-local.yaml
 
 # Logs
 *.log
