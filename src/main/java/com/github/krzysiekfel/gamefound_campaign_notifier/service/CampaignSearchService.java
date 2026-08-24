@@ -23,13 +23,8 @@ public class CampaignSearchService {
         this.publisherService = publisherService;
     }
 
-    public List<CampaignResponse> findCampaignsByCreatorName(String creatorName) {
-        List<ApiGetCrowdfundingProjectResult> allActive = gamefoundClient.getActiveCrowdfundingProjects();
-
-        return allActive.stream()
-                .filter(project -> project.creatorName().toLowerCase().contains(creatorName.toLowerCase()))
-                .map(campaignMapper::toCampaignResponse)
-                .toList();
+    public List<CampaignResponse> findCampaignsByPublisherName(String publisherName) {
+        return findActiveCampaignsForPublisher(publisherName);
     }
 
     public List<CampaignResponse> findCampaignsByGameName(String gameName) {
@@ -37,35 +32,31 @@ public class CampaignSearchService {
         // int bggGameId = gameService.findByName(gameName).getBggId();
 
         // TODO: tymczasowo hardkodowane ID do testów, usunąć po implementacji GameService
-        int bggGameId = 0;
+        int bggGameId = 151347;  // gra Millennium Blades (od Level 99) -> to powinno doprowadzić do nowej kampani Level 99 -> Dead by Daylight: The Board Game - Auris Box
+        String publisherName = publisherService.getPublisherByGameId(bggGameId);
 
-        return findCampaignsByPublisherOfGame(bggGameId);
-    }
-
-    public List<CampaignResponse> findCampaignsByPublisherOfGame(int bggGameId) {
-        String publisher = publisherService.getPublisherByGameId(bggGameId);
-
-        if (publisher == null) {
+        if (publisherName == null) {
             return List.of();
         }
 
-        List<ApiGetCrowdfundingProjectResult> allActive = gamefoundClient.getActiveCrowdfundingProjects();
-
-        return allActive.stream()
-                .filter(project -> project.creatorName().toLowerCase()
-                        .contains(publisher.toLowerCase()))
-                .map(campaignMapper::toCampaignResponse)
-                .toList();
+        return findActiveCampaignsForPublisher(publisherName);
     }
 
     public List<CampaignResponse> findCampaignsByBggUsername(String bggUsername) {
         // TODO: pobrać kolekcję usera z BGG
-        // BggCollectionResponse collection = bggClient.getUserCollection(bggUsername, 1, "boardgame");
-
         // TODO: dla każdej gry z kolekcji znaleźć publishera (rate limit BGG 5s)
         // TODO: zebrać unikalnych publisherów
         // TODO: dla każdego publishera szukać kampanii na Gamefound
 
         return List.of();
+    }
+
+    private List<CampaignResponse> findActiveCampaignsForPublisher(String publisherName) {
+        List<ApiGetCrowdfundingProjectResult> allActive = gamefoundClient.getActiveCrowdfundingProjects();
+
+        return allActive.stream()
+                .filter(project -> project.creatorName().toLowerCase().contains(publisherName.toLowerCase()))
+                .map(campaignMapper::toCampaignResponse)
+                .toList();
     }
 }

@@ -57,13 +57,13 @@ public class CampaignSearchServiceTest {
     }
 
     @Test
-    void shouldFindCampaignsByCreatorName() {
+    void shouldFindCampaignsByPublisherName() {
         // given
         when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List.of(matchingProject, otherProject));
         when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
 
         // when
-        List<CampaignResponse> result = campaignSearchService.findCampaignsByCreatorName("Found");
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherName("Found");
 
         // then
         assertThat(result).hasSize(1);
@@ -77,7 +77,7 @@ public class CampaignSearchServiceTest {
         when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List.of(matchingProject));
 
         // when
-        List<CampaignResponse> result = campaignSearchService.findCampaignsByCreatorName("nonexistent");
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherName("nonexistent");
 
         // then
         assertThat(result).isEmpty();
@@ -90,7 +90,7 @@ public class CampaignSearchServiceTest {
         when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
 
         // when
-        List<CampaignResponse> result = campaignSearchService.findCampaignsByCreatorName("FOUND");
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherName("FOUND");
 
         // then
         assertThat(result).hasSize(1);
@@ -103,13 +103,13 @@ public class CampaignSearchServiceTest {
         when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
 
         // when
-        List<CampaignResponse> result = campaignSearchService.findCampaignsByCreatorName("fou");
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherName("fou");
 
         // then
         assertThat(result).hasSize(1);
     }
 
-    private ApiGetCrowdfundingProjectResult createProject(String projectName, String creatorName) {
+    private ApiGetCrowdfundingProjectResult createProject(String projectName, String publisherName) {
         return new ApiGetCrowdfundingProjectResult(
                 100,
                 5,
@@ -117,8 +117,8 @@ public class CampaignSearchServiceTest {
                 Instant.parse("2026-01-01T00:00:00Z"),
                 Instant.parse("2026-02-01T00:00:00Z"),
                 new BigDecimal("50000"),
-                creatorName,
-                creatorName.toLowerCase().replace(" ", "-"),
+                publisherName,
+                publisherName.toLowerCase().replace(" ", "-"),
                 "EUR",
                 new BigDecimal("75000"),
                 projectName,
@@ -130,26 +130,28 @@ public class CampaignSearchServiceTest {
     }
 
     @Test
-    void shouldFindCampaignsByPublisherOfGame() {
+    void shouldFindCampaignsByGameName() {
         // given
-        when(publisherService.getPublisherByGameId(264220)).thenReturn("Found Publisher");
+        // TODO: zaktualizować gdy GameService będzie zaimplementowany
+        // na razie testuje tylko część z publisherService
+        when(publisherService.getPublisherByGameId(0)).thenReturn("Found Publisher");
         when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List.of(matchingProject));
         when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
 
         // when
-        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherOfGame(264220);
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByGameName("any");
 
         // then
         assertThat(result).hasSize(1);
     }
 
     @Test
-    void shouldReturnEmptyListWhenPublisherNotFound() {
+    void shouldReturnEmptyListWhenPublisherNotFoundForGame() {
         // given
-        when(publisherService.getPublisherByGameId(666)).thenReturn(null);
+        when(publisherService.getPublisherByGameId(0)).thenReturn(null);
 
         // when
-        List<CampaignResponse> result = campaignSearchService.findCampaignsByPublisherOfGame(666);
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByGameName("any");
 
         // then
         assertThat(result).isEmpty();

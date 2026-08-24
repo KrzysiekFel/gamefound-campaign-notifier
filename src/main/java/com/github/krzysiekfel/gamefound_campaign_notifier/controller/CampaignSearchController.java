@@ -20,8 +20,8 @@ public class CampaignSearchController {
     }
 
     @GetMapping
-    public List<CampaignResponse> searchByCreator(@RequestParam String creatorName) {
-        return campaignSearchService.findCampaignsByCreatorName(creatorName);
+    public List<CampaignResponse> searchByPublisher(@RequestParam String publisherName) {
+        return campaignSearchService.findCampaignsByPublisherName(publisherName);
     }
 
     @GetMapping("/by-game")
