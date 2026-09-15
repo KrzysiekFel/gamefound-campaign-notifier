@@ -14,7 +14,7 @@ public class PublisherService {
         this.bggClient = bggClient;
     }
 
-    public String getPublisherByGameId(int bggGameId) {
+    public String getPublisherByGameId(Long bggGameId) {
         BggThingResponse response = bggClient.getThing(bggGameId);
 
         // TODO: sprawdzić czy pierwszy publisher (główny wydawca) zawsze wystarczy, może trzeba brać wszystkich

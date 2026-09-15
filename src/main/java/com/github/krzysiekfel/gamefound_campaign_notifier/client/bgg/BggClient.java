@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface BggClient {
 
     @GetMapping("/thing")
-    BggThingResponse getThing(@RequestParam("id") int id);
+    BggThingResponse getThing(@RequestParam("id") Long id);
 
     @GetMapping("/collection")
     BggCollectionResponse getUserCollection(@RequestParam("username") String username,
-                                            @RequestParam("own") int own,
+                                            @RequestParam("own") int own,  // TODO: sprawdzic dokladnie co tu sie podaje i kiedy w jakiej sytuacji
                                             @RequestParam("subtype") String subtype);
 }

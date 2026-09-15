@@ -1,17 +1,19 @@
 package com.github.krzysiekfel.gamefound_campaign_notifier.controller;
 
-import com.github.krzysiekfel.gamefound_campaign_notifier.dto.CampaignResponse;
+import com.github.krzysiekfel.gamefound_campaign_notifier.controller.api.CampaignsApi;
+import com.github.krzysiekfel.gamefound_campaign_notifier.dto.generated.CampaignResponse;
 import com.github.krzysiekfel.gamefound_campaign_notifier.service.CampaignSearchService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @RestController
-@RequestMapping("/campaigns")
-public class CampaignSearchController {
+public class CampaignSearchController implements CampaignsApi {
 
     private final CampaignSearchService campaignSearchService;
 
@@ -19,18 +21,25 @@ public class CampaignSearchController {
         this.campaignSearchService = campaignSearchService;
     }
 
-    @GetMapping
-    public List<CampaignResponse> searchByPublisher(@RequestParam String publisherName) {
-        return campaignSearchService.findCampaignsByPublisherName(publisherName);
-    }
+    @Override
+    public ResponseEntity<List<CampaignResponse>> searchCampaigns(
+            String publisherName, String gameName, String bggUsername) {
 
-    @GetMapping("/by-game")
-    public List<CampaignResponse> searchByGame(@RequestParam String gameName) {
-        return campaignSearchService.findCampaignsByGameName(gameName);
-    }
+        long providedCount = Stream.of(publisherName, gameName, bggUsername)
+                .filter(Objects::nonNull)
+                .count();
 
-    @GetMapping("/by-user")
-    public List<CampaignResponse> searchByBggUser(@RequestParam String bggUsername) {
-        return campaignSearchService.findCampaignsByBggUsername(bggUsername);
+        if (providedCount != 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Provide exactly one of: publisherName, gameName, bggUsername");
+        }
+
+        if (publisherName != null) {
+            return ResponseEntity.ok(campaignSearchService.findCampaignsByPublisherName(publisherName));
+        }
+        if (gameName != null) {
+            return ResponseEntity.ok(campaignSearchService.findCampaignsByGameName(gameName));
+        }
+        return ResponseEntity.ok(campaignSearchService.findCampaignsByBggUsername(bggUsername));
     }
 }
