@@ -26,7 +26,7 @@ class PublisherServiceTest {
 
     @Test
     void shouldReturnFirstPublisher() {
-        // given
+        // GIVEN
         List<BggLink> links = List.of(
                 new BggLink("boardgamecategory", 123, "Other"),
                 new BggLink("boardgamepublisher", 456, "Main Publisher"),
@@ -35,18 +35,18 @@ class PublisherServiceTest {
         BggItem item = new BggItem("boardgame", 264220, List.of(), links);
         BggThingResponse response = new BggThingResponse(List.of(item));
 
-        when(bggClient.getThing(999)).thenReturn(response);
+        when(bggClient.getThing(999L)).thenReturn(response);
 
-        // when
-        String publisher = publisherService.getPublisherByGameId(999);
+        // WHEN
+        String publisher = publisherService.getPublisherByGameId(999L);
 
-        // then
+        // THEN
         assertThat(publisher).isEqualTo("Main Publisher");
     }
 
     @Test
     void shouldReturnNullWhenNoPublisher() {
-        // given
+        // GIVEN
         List<BggLink> links = List.of(
                 new BggLink("boardgamecategory", 123, "Other"),
                 new BggLink("boardgamedesigner", 456, "Popular Designer")
@@ -54,12 +54,12 @@ class PublisherServiceTest {
         BggItem item = new BggItem("boardgame", 999, List.of(), links);
         BggThingResponse response = new BggThingResponse(List.of(item));
 
-        when(bggClient.getThing(999)).thenReturn(response);
+        when(bggClient.getThing(999L)).thenReturn(response);
 
-        // when
-        String publisher = publisherService.getPublisherByGameId(999);
+        // WHEN
+        String publisher = publisherService.getPublisherByGameId(999L);
 
-        // then
+        // THEN
         assertThat(publisher).isNull();
     }
 }

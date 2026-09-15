@@ -18,6 +18,8 @@ services:
       SPRING_DATA_REDIS_HOST: ${SPRING_DATA_REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${SPRING_DATA_REDIS_PORT}
 
+      BGG_API_TOKEN: ${BGG_API_TOKEN}
+
     depends_on:
       - redis
 

@@ -2,11 +2,13 @@ package com.github.krzysiekfel.gamefound_campaign_notifier.service;
 
 import com.github.krzysiekfel.gamefound_campaign_notifier.client.gamefound.GamefoundClient;
 import com.github.krzysiekfel.gamefound_campaign_notifier.client.gamefound.dto.ApiGetCrowdfundingProjectResult;
-import com.github.krzysiekfel.gamefound_campaign_notifier.dto.CampaignResponse;
+import com.github.krzysiekfel.gamefound_campaign_notifier.dto.generated.CampaignResponse;
+import com.github.krzysiekfel.gamefound_campaign_notifier.entity.Game;
 import com.github.krzysiekfel.gamefound_campaign_notifier.mapper.CampaignMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CampaignSearchService {
@@ -14,13 +16,16 @@ public class CampaignSearchService {
     private final GamefoundClient gamefoundClient;
     private final CampaignMapper campaignMapper;
     private final PublisherService publisherService;
+    private final GameService gameService;
 
     public CampaignSearchService(GamefoundClient gamefoundClient,
                                  CampaignMapper campaignMapper,
-                                 PublisherService publisherService) {
+                                 PublisherService publisherService,
+                                 GameService gameService) {
         this.gamefoundClient = gamefoundClient;
         this.campaignMapper = campaignMapper;
         this.publisherService = publisherService;
+        this.gameService = gameService;
     }
 
     public List<CampaignResponse> findCampaignsByPublisherName(String publisherName) {
@@ -28,12 +33,15 @@ public class CampaignSearchService {
     }
 
     public List<CampaignResponse> findCampaignsByGameName(String gameName) {
-        // TODO: szukaj gry po nazwie w bazie i zwracaj bggId
-        // int bggGameId = gameService.findByName(gameName).getBggId();
 
-        // TODO: tymczasowo hardkodowane ID do testów, usunąć po implementacji GameService
-        int bggGameId = 151347;  // gra Millennium Blades (od Level 99) -> to powinno doprowadzić do nowej kampani Level 99 -> Dead by Daylight: The Board Game - Auris Box
-        String publisherName = publisherService.getPublisherByGameId(bggGameId);
+        Optional<Game> game = gameService.findByName(gameName);
+        if (game.isEmpty()) {
+            return List.of();
+        }
+
+        String publisherName = publisherService.getPublisherByGameId(game.get().getBggId());
+
+        // TODO: na przyszlosc dopisz do bazy kto byl autorem
 
         if (publisherName == null) {
             return List.of();
@@ -43,6 +51,7 @@ public class CampaignSearchService {
     }
 
     public List<CampaignResponse> findCampaignsByBggUsername(String bggUsername) {
+        // Przemyslec czy
         // TODO: pobrać kolekcję usera z BGG
         // TODO: dla każdej gry z kolekcji znaleźć publishera (rate limit BGG 5s)
         // TODO: zebrać unikalnych publisherów
@@ -55,7 +64,7 @@ public class CampaignSearchService {
         List<ApiGetCrowdfundingProjectResult> allActive = gamefoundClient.getActiveCrowdfundingProjects();
 
         return allActive.stream()
-                .filter(project -> project.creatorName().toLowerCase().contains(publisherName.toLowerCase()))
+                .filter(project -> project.creatorName().toLowerCase().contains(publisherName.toLowerCase()))  // TODO premature optimization
                 .map(campaignMapper::toCampaignResponse)
                 .toList();
     }

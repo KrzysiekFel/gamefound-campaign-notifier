@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: Gamefound Campaign Notifier API
+  version: 0.0.1
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development
+
+paths:
+  /v1/campaigns:
+    get:
+      tags:
+        - Campaigns
+      operationId: searchCampaigns
+      summary: Search active campaigns by publisher, game, or BGG username
+      description: >
+        Provide exactly one of: publisherName, gameName, bggUsername.                        
+        Providing zero or more than one results in a 400 Bad Request.
+      parameters:
+        - name: publisherName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: gameName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: bggUsername
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of matching active campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CampaignResponse"
+
+components:
+  schemas:
+    CampaignResponse:
+      type: object
+      properties:
+        projectName:
+          type: string
+        creatorName:
+          type: string
+        campaignStartDate:
+          type: string
+          format: date-time
+        campaignEndDate:
+          type: string
+          format: date-time
+        shortDescription:
+          type: string
+        fundsGathered:
+          type: number
+        campaignGoal:
+          type: number
+        currencyShortName:
+          type: string
+        backerCount:
+          type: integer
+        projectHomeUrl:
+          type: string
+          format: uri
+        projectImageUrl:
+          type: string
+          format: uri
