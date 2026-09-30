@@ -1,5 +1,8 @@
 package com.github.krzysiekfel.gamefound_campaign_notifier.service;
 
+import com.github.krzysiekfel.gamefound_campaign_notifier.client.bgg.BggClient;
+import com.github.krzysiekfel.gamefound_campaign_notifier.client.bgg.dto.BggCollectionItem;
+import com.github.krzysiekfel.gamefound_campaign_notifier.client.bgg.dto.BggCollectionResponse;
 import com.github.krzysiekfel.gamefound_campaign_notifier.client.gamefound.GamefoundClient;
 import com.github.krzysiekfel.gamefound_campaign_notifier.client.gamefound.dto.ApiGetCrowdfundingProjectResult;
 import com.github.krzysiekfel.gamefound_campaign_notifier.dto.generated.CampaignResponse;
@@ -27,6 +30,9 @@ public class CampaignSearchServiceTest {
 
     @Mock
     private GamefoundClient gamefoundClient;
+
+    @Mock
+    private BggClient bggClient;
 
     @Mock
     private CampaignMapper campaignMapper;
@@ -60,6 +66,22 @@ public class CampaignSearchServiceTest {
                 .backerCount(100)
                 .projectHomeUrl(URI.create("https://gamefound.com/project"))
                 .projectImageUrl(URI.create("https://gamefound.com/image.jpg"));
+    }
+
+    @Test
+    void shouldReturnAllActiveCampaigns() {
+        // GIVEN
+        when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List
+                .of(matchingProject, otherProject));
+        when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
+        when(campaignMapper.toCampaignResponse(otherProject))
+                .thenReturn(new CampaignResponse().projectName("Other Game"));
+
+        // WHEN
+        List<CampaignResponse> result = campaignSearchService.findAllActiveCampaigns();
+
+        // THEN
+        assertThat(result).hasSize(2);
     }
 
     @Test
@@ -174,6 +196,52 @@ public class CampaignSearchServiceTest {
 
         // WHEN
         List<CampaignResponse> result = campaignSearchService.findCampaignsByGameName("any");
+
+        // THEN
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldFindCampaignsByBggUsernameAcrossWholeCollection() {
+        // GIVEN
+        BggCollectionItem item = new BggCollectionItem(264220, "boardgame", "Matching game");
+        when(bggClient.getUserCollection("someuser", "boardgame"))
+                .thenReturn(new BggCollectionResponse(List.of(item)));
+        when(publisherService.getPublisherByGameId(264220L)).thenReturn("Found Publisher");
+        when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List.of(matchingProject, otherProject));
+        when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
+
+        // WHEN
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByBggUsername("someuser");
+
+        // THEN
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getProjectName()).isEqualTo("Matching game");
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenBggCollectionIsEmpty() {
+        // GIVEN
+        when(bggClient.getUserCollection("someuser", "boardgame"))
+                .thenReturn(new BggCollectionResponse(List.of()));
+
+        // WHEN
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByBggUsername("someuser");
+
+        // THEN
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoPublisherFoundForAnyCollectionItem() {
+        // GIVEN
+        BggCollectionItem item = new BggCollectionItem(264220, "boardgame", "Matching game");
+        when(bggClient.getUserCollection("someuser", "boardgame"))
+                .thenReturn(new BggCollectionResponse(List.of(item)));
+        when(publisherService.getPublisherByGameId(264220L)).thenReturn(null);
+
+        // WHEN
+        List<CampaignResponse> result = campaignSearchService.findCampaignsByBggUsername("someuser");
 
         // THEN
         assertThat(result).isEmpty();

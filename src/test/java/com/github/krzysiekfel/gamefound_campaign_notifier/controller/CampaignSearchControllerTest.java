@@ -27,15 +27,18 @@ class CampaignSearchControllerTest {
     private CampaignSearchController campaignSearchController;
 
     @Test
-    void shouldReturn400WhenNoParameterProvided() {
-        // GIVEN & WHEN
-        ResponseStatusException exception = catchThrowableOfType(
-                () -> campaignSearchController.searchCampaigns(null, null, null),
-                ResponseStatusException.class);
+    void shouldReturnAllCampaignsWhenNoParameterProvided() {
+        // GIVEN
+        List<CampaignResponse> expected = List.of(new CampaignResponse());
+        when(campaignSearchService.findAllActiveCampaigns()).thenReturn(expected);
+
+        // WHEN
+        ResponseEntity<List<CampaignResponse>> response =
+                campaignSearchController.searchCampaigns(null, null, null);
 
         // THEN
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        verifyNoInteractions(campaignSearchService);
+        assertThat(response.getBody()).isEqualTo(expected);
+        verify(campaignSearchService).findAllActiveCampaigns();
     }
 
     @Test

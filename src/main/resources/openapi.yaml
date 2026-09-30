@@ -15,8 +15,12 @@ paths:
       operationId: searchCampaigns
       summary: Search active campaigns by publisher, game, or BGG username
       description: >
-        Provide exactly one of: publisherName, gameName, bggUsername.                        
-        Providing zero or more than one results in a 400 Bad Request.
+        Provide at most one of: publisherName, gameName, bggUsername.
+        If none is provided, all active Gamefound campaigns are returned.
+        Providing more than one results in a 400 Bad Request.
+        All three modes ultimately match campaigns by their creator: gameName resolves to that
+        game's publisher, and bggUsername resolves to the publishers of every game in the user's
+        BGG collection.
       parameters:
         - name: publisherName
           in: query
@@ -43,8 +47,40 @@ paths:
                 items:
                   $ref: "#/components/schemas/CampaignResponse"
 
+  /v1/games/suggestions:
+    get:
+      tags:
+        - Games
+      operationId: suggestGames
+      summary: Suggest base game names matching a partial query, for search autocomplete
+      description: >
+        Returns up to 10 games whose name contains the query, ordered alphabetically.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of matching game suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameSuggestionResponse"
+
 components:
   schemas:
+    GameSuggestionResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        yearPublished:
+          type: integer
+
     CampaignResponse:
       type: object
       properties:

@@ -8,10 +8,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,5 +50,52 @@ class GameServiceTest {
 
         // THEN
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldReturnSuggestionsFromRepositoryWhenQueryLongEnough() {
+        // GIVEN
+        Game game = new Game(174430L, "Gloomhaven", 2017, 4);
+        when(gameRepository.findTop10ByNameContainingIgnoreCaseOrderByNameAsc("gloom"))
+                .thenReturn(List.of(game));
+
+        // WHEN
+        List<Game> result = gameService.findSuggestions("gloom");
+
+        // THEN
+        assertThat(result).containsExactly(game);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenQueryTooShort() {
+        // WHEN
+        List<Game> result = gameService.findSuggestions("g");
+
+        // THEN
+        assertThat(result).isEmpty();
+        verifyNoInteractions(gameRepository);
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenQueryIsNull() {
+        // WHEN
+        List<Game> result = gameService.findSuggestions(null);
+
+        // THEN
+        assertThat(result).isEmpty();
+        verifyNoInteractions(gameRepository);
+    }
+
+    @Test
+    void shouldTrimQueryBeforeDelegatingToRepository() {
+        // GIVEN
+        when(gameRepository.findTop10ByNameContainingIgnoreCaseOrderByNameAsc("catan"))
+                .thenReturn(List.of());
+
+        // WHEN
+        gameService.findSuggestions("  catan  ");
+
+        // THEN
+        verify(gameRepository).findTop10ByNameContainingIgnoreCaseOrderByNameAsc("catan");
     }
 }

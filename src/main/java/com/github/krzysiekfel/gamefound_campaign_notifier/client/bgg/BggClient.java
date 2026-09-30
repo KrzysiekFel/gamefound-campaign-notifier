@@ -16,8 +16,8 @@ public interface BggClient {
     @GetMapping("/thing")
     BggThingResponse getThing(@RequestParam("id") Long id);
 
+    // Returns every item on the user's list (owned, wishlist, preordered, etc.),
     @GetMapping("/collection")
     BggCollectionResponse getUserCollection(@RequestParam("username") String username,
-                                            @RequestParam("own") int own,  // TODO: sprawdzic dokladnie co tu sie podaje i kiedy w jakiej sytuacji
                                             @RequestParam("subtype") String subtype);
 }

@@ -29,9 +29,13 @@ public class CampaignSearchController implements CampaignsApi {
                 .filter(Objects::nonNull)
                 .count();
 
-        if (providedCount != 1) {
+        if (providedCount > 1) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Provide exactly one of: publisherName, gameName, bggUsername");
+                    "Provide at most one of: publisherName, gameName, bggUsername");
+        }
+
+        if (providedCount == 0) {
+            return ResponseEntity.ok(campaignSearchService.findAllActiveCampaigns());
         }
 
         if (publisherName != null) {

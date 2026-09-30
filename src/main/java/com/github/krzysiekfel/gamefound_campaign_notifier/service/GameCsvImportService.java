@@ -1,9 +1,9 @@
 package com.github.krzysiekfel.gamefound_campaign_notifier.service;
 
+import com.github.krzysiekfel.gamefound_campaign_notifier.repository.GameUpsertRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -12,75 +12,59 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
-public class GameCsvImportService {
+public class GameCsvImportService {  // TODO: for future: Accepted and the async by email
 
     private static final int BATCH_SIZE = 1000;
-    private static final String UPSERT_SQL = """                     
-              INSERT INTO game (bgg_id, name, year_published, rank)    
-              VALUES (?, ?, ?, ?)                                      
-              ON CONFLICT (bgg_id) DO UPDATE SET                       
-                  name = EXCLUDED.name,                                
-                  year_published = EXCLUDED.year_published,            
-                  rank = EXCLUDED.rank                                 
-              """;
+    private static final CSVFormat CSV_FORMAT = CSVFormat.DEFAULT.builder()
+            .setHeader()
+            .setSkipHeaderRecord(true)
+            .build();
 
-    private final JdbcTemplate jdbcTemplate;
+    private final GameUpsertRepository gameUpsertRepository;
 
-    public GameCsvImportService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public GameCsvImportService(GameUpsertRepository gameUpsertRepository) {
+        this.gameUpsertRepository = gameUpsertRepository;
     }
 
-    public GameImportSummary importFromCsv(InputStream inputStream)
-            throws IOException {
-        int imported = 0;
-        int skipped = 0;
+    public void importFromCsv(InputStream inputStream) throws IOException {
+        try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+             CSVParser parser = CSV_FORMAT.parse(reader)) {
 
-        try (Reader reader = new InputStreamReader(inputStream,
-                StandardCharsets.UTF_8);
-             CSVParser parser = CSVFormat.DEFAULT.builder()
-                     .setHeader()
-                     .setSkipHeaderRecord(true)
-                     .build()
-                     .parse(reader)) {
+            Iterator<Object[]> rows = parser.stream()
+                    .filter(record -> !isExpansion(record))
+                    .map(this::toRow)
+                    .iterator();
 
-            List<Object[]> batch = new ArrayList<>(BATCH_SIZE);
-
-            for (CSVRecord record : parser) {
-                if ("1".equals(record.get("is_expansion"))) {
-                    skipped++;
-                    continue;
-                }
-
-                Integer yearPublished =
-                        parseIntOrNull(record.get("yearpublished"));
-                Integer rank = parseIntOrNull(record.get("rank"));
-
-                batch.add(new Object[]{
-                        Long.parseLong(record.get("id")),
-                        record.get("name"),
-                        yearPublished,
-                        rank
-                });
-                imported++;
-
-                if (batch.size() == BATCH_SIZE) {
-                    upsertBatch(batch);
-                    batch.clear();
-                }
-            }
-            if (!batch.isEmpty()) {
-                upsertBatch(batch);
+            while (rows.hasNext()) {
+                List<Object[]> batch = nextBatch(rows);
+                gameUpsertRepository.upsertAll(batch);
             }
         }
-
-        return new GameImportSummary(imported, skipped);
     }
 
-    private void upsertBatch(List<Object[]> batch) {
-        jdbcTemplate.batchUpdate(UPSERT_SQL, batch);
+    private List<Object[]> nextBatch(Iterator<Object[]> rows) {
+        List<Object[]> batch = new ArrayList<>(BATCH_SIZE);
+        while (rows.hasNext() && batch.size() < BATCH_SIZE) {
+            batch.add(rows.next());
+        }
+        return batch;
+    }
+
+    private boolean isExpansion(CSVRecord record) {
+        return "1".equals(record.get("is_expansion"));
+    }
+
+    private Object[] toRow(CSVRecord record) {
+        return new Object[]{
+                Long.parseLong(record.get("id")),
+                record.get("name"),
+                parseIntOrNull(record.get("yearpublished")),
+                parseIntOrNull(record.get("rank"))
+        };
     }
 
     private Integer parseIntOrNull(String value) {
@@ -92,8 +76,5 @@ public class GameCsvImportService {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    public record GameImportSummary(int imported, int skipped) {
     }
 }

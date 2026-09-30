@@ -17,8 +17,6 @@ public class PublisherService {
     public String getPublisherByGameId(Long bggGameId) {
         BggThingResponse response = bggClient.getThing(bggGameId);
 
-        // TODO: sprawdzić czy pierwszy publisher (główny wydawca) zawsze wystarczy, może trzeba brać wszystkich
-        // TODO czy publisherow nie bede miec w bazie?
         return response.items().getFirst().links().stream()
                 .filter(link -> "boardgamepublisher".equals(link.type()))
                 .map(BggLink::value)

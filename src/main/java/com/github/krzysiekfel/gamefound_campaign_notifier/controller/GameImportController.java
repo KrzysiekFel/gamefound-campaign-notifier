@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-// TODO: zabezpieczyć ten endpoint
+// TODO: for future: zabezpieczyć ten endpoint
 @RestController
 @RequestMapping("/admin/games")
 public class GameImportController {
@@ -22,8 +22,9 @@ public class GameImportController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<GameCsvImportService.GameImportSummary> importGames(
-            @RequestParam("file") MultipartFile file) throws IOException {
-        return ResponseEntity.ok(gameCsvImportService.importFromCsv(file.getInputStream()));
+    public ResponseEntity<Void> importGames(@RequestParam("file") MultipartFile file)
+            throws IOException {
+        gameCsvImportService.importFromCsv(file.getInputStream());
+        return ResponseEntity.noContent().build();
     }
 }

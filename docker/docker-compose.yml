@@ -23,6 +23,16 @@ services:
     depends_on:
       - redis
 
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: gamefound-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - app
+
   redis:
     image: redis:7-alpine
     container_name: gamefound-redis
