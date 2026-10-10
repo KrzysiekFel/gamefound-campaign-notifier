@@ -1,4 +1,5 @@
 import type { CampaignResponse } from "../api/campaigns";
+import { EmailCampaignButton } from "./EmailCampaignButton";
 
 function formatDate(value?: string) {
   if (!value) return "-";
@@ -36,6 +37,8 @@ export function CampaignCard({ campaign }: { campaign: CampaignResponse }) {
             View on Gamefound
           </a>
         )}
+
+        {campaign.projectUrlName && <EmailCampaignButton projectUrlName={campaign.projectUrlName} />}
       </div>
     </article>
   );

@@ -71,6 +71,54 @@ paths:
                 items:
                   $ref: "#/components/schemas/GameSuggestionResponse"
 
+  /v1/email-requests:
+    post:
+      tags:
+        - EmailRequests
+      operationId: createEmailRequest
+      summary: Request an email with a single campaign
+      description: >
+        Accepts the request and sends the email asynchronously.                            
+        The recipient is resolved on the server side and cannot be provided by the client.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEmailRequest"
+      responses:
+        "202":
+          description: Request accepted, email will be sent in the background
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailRequestResponse"
+        "400":
+          description: Invalid request body
+
+  /v1/email-requests/{id}:
+    get:
+      tags:
+        - EmailRequests
+      operationId: getEmailRequest
+      summary: Get the status of an email request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Email request status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailRequestResponse"
+        "404":
+          description: Email request not found
+
 components:
   schemas:
     GameSuggestionResponse:
@@ -110,3 +158,36 @@ components:
         projectImageUrl:
           type: string
           format: uri
+        projectUrlName:
+          type: string
+
+    CreateEmailRequest:
+      type: object
+      required:
+        - projectUrlName
+      properties:
+        projectUrlName:
+          type: string
+          minLength: 1
+          maxLength: 255
+
+    EmailRequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - PENDING
+            - SENT
+            - FAILED
+        projectUrlName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        sentAt:
+          type: string
+          format: date-time

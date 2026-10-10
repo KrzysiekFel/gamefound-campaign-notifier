@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${campaign.projectName}">Campaign</title>
+</head>
+<body style="margin:0; padding:24px; background-color:#f4f4f5; font-family:Arial, Helvetica, sans-serif; color:#18181b;">
+<div style="max-width:600px; margin:0 auto; background-color:#ffffff; border-radius:8px; overflow:hidden;">
+
+    <img th:if="${campaign.projectImageUrl != null}"
+         th:src="${campaign.projectImageUrl}"
+         th:alt="${campaign.projectName}"
+         style="display:block; width:100%; height:auto;">
+
+    <div style="padding:24px;">
+        <h1 style="margin:0 0 4px; font-size:22px;" th:text="${campaign.projectName}">Campaign name</h1>
+        <p style="margin:0 0 16px; color:#52525b;">
+            by <strong th:text="${campaign.creatorName}">Creator name</strong>
+        </p>
+
+        <p th:if="${campaign.shortDescription != null}"
+           style="margin:0 0 16px; line-height:1.5;"
+           th:text="${campaign.shortDescription}">Short description of the campaign.</p>
+
+        <table style="width:100%; margin:0 0 24px; border-collapse:collapse; font-size:14px;">
+            <tr th:if="${campaign.fundsGathered != null}">
+                <td style="padding:6px 0; color:#52525b;">Funded</td>
+                <td style="padding:6px 0; text-align:right; font-weight:bold;"
+                    th:text="|${#numbers.formatInteger(campaign.fundsGathered, 1, 'COMMA')} ${campaign.currencyShortName}|">
+                    100,000 EUR
+                </td>
+            </tr>
+            <tr th:if="${campaign.backerCount != null}">
+                <td style="padding:6px 0; color:#52525b;">Backers</td>
+                <td style="padding:6px 0; text-align:right; font-weight:bold;"
+                    th:text="${campaign.backerCount}">1234</td>
+            </tr>
+            <tr th:if="${campaign.campaignEndDate != null}">
+                <td style="padding:6px 0; color:#52525b;">Ends</td>
+                <td style="padding:6px 0; text-align:right; font-weight:bold;"
+                    th:text="|${#temporals.format(campaign.campaignEndDate, 'dd MMM yyyy, HH:mm')} UTC|">
+                    01 Jan 2027, 12:00 UTC
+                </td>
+            </tr>
+        </table>
+
+        <a th:href="${campaign.projectHomeUrl}"
+           style="display:inline-block; padding:12px 20px; background-color:#ea580c; color:#ffffff; text-decoration:none; border-radius:6px; font-weight:bold;">
+            See the campaign on Gamefound
+        </a>
+    </div>
+
+    <p style="margin:0; padding:16px 24px; font-size:12px; color:#a1a1aa; border-top:1px solid #e4e4e7;">
+        You received this email because you requested it in Gamefound Campaign Notifier.
+    </p>
+</div>
+</body>
+</html>

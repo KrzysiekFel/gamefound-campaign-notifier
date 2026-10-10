@@ -200,3 +200,44 @@ body {
   color: var(--accent);
   font-size: 14px;
 }
+
+.email-button {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.email-button:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+
+.email-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.email-status {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.email-status-error {
+  color: #d93025;
+}
+
+.email-retry {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

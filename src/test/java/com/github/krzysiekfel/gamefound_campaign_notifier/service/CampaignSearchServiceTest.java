@@ -246,4 +246,29 @@ public class CampaignSearchServiceTest {
         // THEN
         assertThat(result).isEmpty();
     }
+
+    @Test
+    void shouldFindActiveCampaignByProjectUrlName() {
+        // GIVEN
+        when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List.of(otherProject, matchingProject));
+        when(campaignMapper.toCampaignResponse(matchingProject)).thenReturn(matchingResponse);
+
+        // WHEN
+        Optional<CampaignResponse> result = campaignSearchService.findActiveCampaignByProjectUrlName("matching-game");
+
+        // THEN
+        assertThat(result).contains(matchingResponse);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoActiveCampaignHasGivenProjectUrlName() {
+        // GIVEN
+        when(gamefoundClient.getActiveCrowdfundingProjects()).thenReturn(List.of(matchingProject, otherProject));
+
+        // WHEN
+        Optional<CampaignResponse> result = campaignSearchService.findActiveCampaignByProjectUrlName("unknown-slug");
+
+        // THEN
+        assertThat(result).isEmpty();
+    }
 }
