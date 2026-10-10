@@ -13,7 +13,7 @@ export interface paths {
         };
         /**
          * Search active campaigns by publisher, game, or BGG username
-         * @description Provide at most one of: publisherName, gameName, bggUsername. If none is provided, all active Gamefound campaigns are returned. Providing more than one results in a 400 Bad Request.
+         * @description Provide at most one of: publisherName, gameName, bggUsername. If none is provided, all active Gamefound campaigns are returned. Providing more than one results in a 400 Bad Request. All three modes ultimately match campaigns by their creator: gameName resolves to that game's publisher, and bggUsername resolves to the publishers of every game in the user's BGG collection.
          */
         get: operations["searchCampaigns"];
         put?: never;
@@ -33,9 +33,46 @@ export interface paths {
         };
         /**
          * Suggest base game names matching a partial query, for search autocomplete
-         * @description Returns up to 10 base games (expansions are excluded from the dataset) whose name contains the query, ordered alphabetically.
+         * @description Returns up to 10 games whose name contains the query, ordered alphabetically.
          */
         get: operations["suggestGames"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/email-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request an email with a single campaign
+         * @description Accepts the request and sends the email asynchronously.                             The recipient is resolved on the server side and cannot be provided by the client.
+         */
+        post: operations["createEmailRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/email-requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the status of an email request */
+        get: operations["getEmailRequest"];
         put?: never;
         post?: never;
         delete?: never;
@@ -68,6 +105,21 @@ export interface components {
             projectHomeUrl?: string;
             /** Format: uri */
             projectImageUrl?: string;
+            projectUrlName?: string;
+        };
+        CreateEmailRequest: {
+            projectUrlName: string;
+        };
+        EmailRequestResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "SENT" | "FAILED";
+            projectUrlName?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            sentAt?: string;
         };
     };
     responses: never;
@@ -121,6 +173,66 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["GameSuggestionResponse"][];
                 };
+            };
+        };
+    };
+    createEmailRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Request accepted, email will be sent in the background */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailRequestResponse"];
+                };
+            };
+            /** @description Invalid request body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getEmailRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Email request status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailRequestResponse"];
+                };
+            };
+            /** @description Email request not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
