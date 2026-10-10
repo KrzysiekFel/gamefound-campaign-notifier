@@ -18,8 +18,20 @@ services:
       SPRING_DATA_REDIS_HOST: ${SPRING_DATA_REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${SPRING_DATA_REDIS_PORT}
 
+      BGG_API_TOKEN: ${BGG_API_TOKEN}
+
     depends_on:
       - redis
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: gamefound-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - app
 
   redis:
     image: redis:7-alpine

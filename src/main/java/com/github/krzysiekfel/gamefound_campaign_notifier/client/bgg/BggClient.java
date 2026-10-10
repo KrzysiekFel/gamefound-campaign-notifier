@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface BggClient {
 
     @GetMapping("/thing")
-    BggThingResponse getThing(@RequestParam("id") int id);
+    BggThingResponse getThing(@RequestParam("id") Long id);
 
+    // Returns every item on the user's list (owned, wishlist, preordered, etc.),
     @GetMapping("/collection")
     BggCollectionResponse getUserCollection(@RequestParam("username") String username,
-                                            @RequestParam("own") int own,
                                             @RequestParam("subtype") String subtype);
 }

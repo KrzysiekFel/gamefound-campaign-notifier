@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: Gamefound Campaign Notifier API
+  version: 0.0.1
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development
+
+paths:
+  /v1/campaigns:
+    get:
+      tags:
+        - Campaigns
+      operationId: searchCampaigns
+      summary: Search active campaigns by publisher, game, or BGG username
+      description: >
+        Provide at most one of: publisherName, gameName, bggUsername.
+        If none is provided, all active Gamefound campaigns are returned.
+        Providing more than one results in a 400 Bad Request.
+        All three modes ultimately match campaigns by their creator: gameName resolves to that
+        game's publisher, and bggUsername resolves to the publishers of every game in the user's
+        BGG collection.
+      parameters:
+        - name: publisherName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: gameName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: bggUsername
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of matching active campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CampaignResponse"
+
+  /v1/games/suggestions:
+    get:
+      tags:
+        - Games
+      operationId: suggestGames
+      summary: Suggest base game names matching a partial query, for search autocomplete
+      description: >
+        Returns up to 10 games whose name contains the query, ordered alphabetically.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of matching game suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameSuggestionResponse"
+
+components:
+  schemas:
+    GameSuggestionResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        yearPublished:
+          type: integer
+
+    CampaignResponse:
+      type: object
+      properties:
+        projectName:
+          type: string
+        creatorName:
+          type: string
+        campaignStartDate:
+          type: string
+          format: date-time
+        campaignEndDate:
+          type: string
+          format: date-time
+        shortDescription:
+          type: string
+        fundsGathered:
+          type: number
+        campaignGoal:
+          type: number
+        currencyShortName:
+          type: string
+        backerCount:
+          type: integer
+        projectHomeUrl:
+          type: string
+          format: uri
+        projectImageUrl:
+          type: string
+          format: uri
