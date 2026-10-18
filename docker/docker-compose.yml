@@ -9,19 +9,35 @@ services:
       - "8080:8080"
 
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
 
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+      SPRING_RABBITMQ_HOST: ${SPRING_RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${SPRING_RABBITMQ_PORT}
+      SPRING_RABBITMQ_USERNAME: ${SPRING_RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${SPRING_RABBITMQ_PASSWORD}
+
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT}
+      BREVO_SMTP_LOGIN: ${BREVO_SMTP_LOGIN:-}
+      BREVO_SMTP_KEY: ${BREVO_SMTP_KEY:-}
+      NOTIFICATIONS_MAIL_FROM: ${NOTIFICATIONS_MAIL_FROM:-noreply@gamefound-notifier.local}
 
       SPRING_DATA_REDIS_HOST: ${SPRING_DATA_REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${SPRING_DATA_REDIS_PORT}
 
       BGG_API_TOKEN: ${BGG_API_TOKEN}
 
+      JWT_SECRET: ${JWT_SECRET}
+
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   frontend:
     build:
@@ -38,3 +54,26 @@ services:
     container_name: gamefound-redis
     ports:
       - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: gamefound-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${SPRING_RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${SPRING_RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"     # port protokolu AMQP po ktorym appka polaczy sie z rabbitmq
+      - "15672:15672"   # panel WWW
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: gamefound-mailpit
+    profiles: ["mailpit"]
+    ports:
+      - "1025:1025"     # SMTP tędy aplikacja "wysyła" maile
+      - "8025:8025"     # panel WWW gdzie widac przechwycone maile

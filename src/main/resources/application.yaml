@@ -16,6 +16,27 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
+  mvc:
+    problemdetails:
+      enabled: true
+
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 4
+          initial-interval: 2s
+          multiplier: 3
+          max-interval: 30s
+
+  mail:
+    properties:
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+
 server:
   servlet:
     context-path: /api
@@ -38,3 +59,13 @@ bgg:
 gamefound:
   api:
     base-url: https://gamefound.com
+
+notifications:
+  mail:
+    from: ${NOTIFICATIONS_MAIL_FROM:noreply@gamefound-notifier.local}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 24h
+    issuer: gamefound-campaign-notifier

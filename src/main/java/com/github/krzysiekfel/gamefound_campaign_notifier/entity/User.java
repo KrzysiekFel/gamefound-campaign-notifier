@@ -1,7 +1,10 @@
 package com.github.krzysiekfel.gamefound_campaign_notifier.entity;
 
+import com.github.krzysiekfel.gamefound_campaign_notifier.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,9 +32,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Getter(AccessLevel.NONE)
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role = Role.USER;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

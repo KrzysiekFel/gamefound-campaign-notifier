@@ -103,4 +103,11 @@ public class CampaignSearchService {
                 .map(campaignMapper::toCampaignResponse)
                 .toList();
     }
+
+    public Optional<CampaignResponse> findActiveCampaignByProjectUrlName(String projectUrlName) {
+        return gamefoundClient.getActiveCrowdfundingProjects().stream()
+                .filter(project -> projectUrlName.equals(project.projectUrlName()))
+                .findFirst()
+                .map(campaignMapper::toCampaignResponse);
+    }
 }

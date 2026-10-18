@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-// TODO: for future: zabezpieczyć ten endpoint
 @RestController
 @RequestMapping("/admin/games")
 public class GameImportController {
