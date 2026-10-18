@@ -38,6 +38,9 @@ public class EmailRequest {
     @Column(nullable = false)
     private String recipient;
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(name = "project_url_name")
     private String projectUrlName;
 
@@ -51,15 +54,16 @@ public class EmailRequest {
     @Column(name = "sent_at")
     private Instant sentAt;
 
-    private EmailRequest(EmailRequestType type, String recipient, String projectUrlName) {
+    private EmailRequest(EmailRequestType type, Long userId, String recipient, String projectUrlName) {
         this.type = type;
         this.status = EmailRequestStatus.PENDING;
+        this.userId = userId;
         this.recipient = recipient;
         this.projectUrlName = projectUrlName;
     }
 
-    public static EmailRequest campaignShare(String recipient, String projectUrlName) {
-        return new EmailRequest(EmailRequestType.CAMPAIGN_SHARE, recipient, projectUrlName);
+    public static EmailRequest campaignShare(Long userId, String recipient, String projectUrlName) {
+        return new EmailRequest(EmailRequestType.CAMPAIGN_SHARE, userId, recipient, projectUrlName);
     }
 
     public boolean isPending() {

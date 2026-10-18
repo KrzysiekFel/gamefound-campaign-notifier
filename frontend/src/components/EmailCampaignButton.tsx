@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createEmailRequest, getEmailRequest } from "../api/emailRequests";
+import { ApiError } from "../api/http";
+import { useAuth } from "../auth/authContext";
+import { loginPathFor } from "../auth/redirect";
 
 const POLL_INTERVAL_MS = 2000;
 // ~60 s – dłużej niż pełny cykl błędu na backendzie (4 próby z timeoutem 5 s + przerwy 2+6+18 s ≈ 53 s)
@@ -7,8 +11,14 @@ const MAX_POLL_ATTEMPTS = 30;
 
 type SendStatus = "idle" | "pending" | "sent" | "failed" | "timeout";
 
-// TODO (logowanie): niezalogowany → przekierowanie na /login?redirect=..., po powrocie ponowne kliknięcie
+function isUnauthorized(error: unknown) {
+  return error instanceof ApiError && error.status === 401;
+}
+
 export function EmailCampaignButton({ projectUrlName }: { projectUrlName: string }) {
+  const { status: authStatus } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [status, setStatus] = useState<SendStatus>("idle");
   const [requestId, setRequestId] = useState<string | null>(null);
 
@@ -33,7 +43,12 @@ export function EmailCampaignButton({ projectUrlName }: { projectUrlName: string
           setStatus("failed");
           return;
         }
-      } catch {
+      } catch (error) {
+        // wylogowany w trakcie (token wygasł) – nie ma sensu dalej pytać
+        if (isUnauthorized(error)) {
+          setStatus("idle");
+          return;
+        }
         // chwilowy błąd sieci – spróbujemy przy następnym sprawdzeniu
       }
 
@@ -53,15 +68,33 @@ export function EmailCampaignButton({ projectUrlName }: { projectUrlName: string
     };
   }, [requestId]);
 
+  // Po zalogowaniu wracamy na tę samą stronę (z kryteriami wyszukiwania) – użytkownik klika jeszcze raz
+  function goToLogin() {
+    navigate(loginPathFor(location));
+  }
+
   async function handleClick() {
     setStatus("pending");
     setRequestId(null);
     try {
       const request = await createEmailRequest(projectUrlName);
       setRequestId(request.id ?? null);
-    } catch {
+    } catch (error) {
+      if (isUnauthorized(error)) {
+        setStatus("idle");
+        goToLogin();
+        return;
+      }
       setStatus("failed");
     }
+  }
+
+  if (authStatus !== "authenticated") {
+    return (
+      <button type="button" className="email-button" onClick={goToLogin} disabled={authStatus === "loading"}>
+        Log in to get this by email
+      </button>
+    );
   }
 
   if (status === "sent") {

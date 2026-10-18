@@ -16,6 +16,10 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
+  mvc:
+    problemdetails:
+      enabled: true
+
   rabbitmq:
     listener:
       simple:
@@ -59,4 +63,9 @@ gamefound:
 notifications:
   mail:
     from: ${NOTIFICATIONS_MAIL_FROM:noreply@gamefound-notifier.local}
-    temporary-recipient: ${NOTIFICATIONS_TEMPORARY_RECIPIENT:test@gamefound.local}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 24h
+    issuer: gamefound-campaign-notifier

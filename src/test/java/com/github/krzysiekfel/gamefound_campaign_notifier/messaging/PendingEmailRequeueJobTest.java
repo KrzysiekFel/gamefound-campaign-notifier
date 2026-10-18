@@ -40,8 +40,8 @@ class PendingEmailRequeueJobTest {
     void shouldRepublishRequestsStuckInPendingForMoreThanFiveMinutes() {
         // GIVEN
         List<EmailRequest> stuckRequests = List.of(
-                EmailRequest.campaignShare("test@gamefound.local", "first"),
-                EmailRequest.campaignShare("test@gamefound.local", "second"));
+                EmailRequest.campaignShare(1L, "test@gamefound.local", "first"),
+                EmailRequest.campaignShare(1L, "test@gamefound.local", "second"));
         when(emailRequestRepository.findByStatusAndCreatedAtBefore(eq(EmailRequestStatus.PENDING), any()))
                 .thenReturn(stuckRequests);
 

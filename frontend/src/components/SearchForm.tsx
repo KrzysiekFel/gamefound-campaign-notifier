@@ -3,6 +3,8 @@ import type { SearchField } from "../api/campaigns";
 import { GameNameAutocomplete } from "./GameNameAutocomplete";
 
 interface SearchFormProps {
+  initialField?: SearchField;
+  initialValue?: string;
   onSearch: (field: SearchField | undefined, value: string | undefined) => void;
 }
 
@@ -12,9 +14,9 @@ const FIELD_LABELS: Record<SearchField, string> = {
   bggUsername: "BGG username",
 };
 
-export function SearchForm({ onSearch }: SearchFormProps) {
-  const [field, setField] = useState<SearchField>("publisherName");
-  const [value, setValue] = useState("");
+export function SearchForm({ initialField, initialValue, onSearch }: SearchFormProps) {
+  const [field, setField] = useState<SearchField>(initialField ?? "publisherName");
+  const [value, setValue] = useState(initialValue ?? "");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

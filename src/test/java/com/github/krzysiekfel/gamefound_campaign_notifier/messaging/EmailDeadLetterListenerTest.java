@@ -32,7 +32,7 @@ class EmailDeadLetterListenerTest {
     @Test
     void shouldMarkPendingRequestAsFailed() {
         // GIVEN
-        EmailRequest request = EmailRequest.campaignShare("test@gamefound.local", "age-of-skorpa");
+        EmailRequest request = EmailRequest.campaignShare(1L, "test@gamefound.local", "age-of-skorpa");
         when(emailRequestRepository.findById(ID)).thenReturn(Optional.of(request));
 
         // WHEN
@@ -47,7 +47,7 @@ class EmailDeadLetterListenerTest {
     @Test
     void shouldNotOverwriteRequestThatIsAlreadySent() {
         // GIVEN
-        EmailRequest request = EmailRequest.campaignShare("test@gamefound.local", "age-of-skorpa");
+        EmailRequest request = EmailRequest.campaignShare(1L, "test@gamefound.local", "age-of-skorpa");
         request.markSent();
         when(emailRequestRepository.findById(ID)).thenReturn(Optional.of(request));
 

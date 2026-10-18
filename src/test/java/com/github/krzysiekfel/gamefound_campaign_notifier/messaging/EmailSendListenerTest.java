@@ -52,7 +52,7 @@ class EmailSendListenerTest {
     @Test
     void shouldSendEmailAndMarkRequestAsSent() {
         // GIVEN
-        EmailRequest request = EmailRequest.campaignShare(RECIPIENT, SLUG);
+        EmailRequest request = EmailRequest.campaignShare(1L, RECIPIENT, SLUG);
         CampaignResponse campaign = new CampaignResponse().projectName("Age of Skorpa");
         when(emailRequestRepository.findById(ID)).thenReturn(Optional.of(request));
         when(campaignSearchService.findActiveCampaignByProjectUrlName(SLUG)).thenReturn(Optional.of(campaign));
@@ -83,7 +83,7 @@ class EmailSendListenerTest {
     @Test
     void shouldSkipDuplicateMessageWhenRequestAlreadySent() {
         // GIVEN
-        EmailRequest request = EmailRequest.campaignShare(RECIPIENT, SLUG);
+        EmailRequest request = EmailRequest.campaignShare(1L, RECIPIENT, SLUG);
         request.markSent();
         when(emailRequestRepository.findById(ID)).thenReturn(Optional.of(request));
 
@@ -98,7 +98,7 @@ class EmailSendListenerTest {
     @Test
     void shouldMarkRequestAsFailedWithoutSendingWhenCampaignNotFound() {
         // GIVEN
-        EmailRequest request = EmailRequest.campaignShare(RECIPIENT, SLUG);
+        EmailRequest request = EmailRequest.campaignShare(1L, RECIPIENT, SLUG);
         when(emailRequestRepository.findById(ID)).thenReturn(Optional.of(request));
         when(campaignSearchService.findActiveCampaignByProjectUrlName(SLUG)).thenReturn(Optional.empty());
 
@@ -115,7 +115,7 @@ class EmailSendListenerTest {
     @Test
     void shouldPropagateExceptionAndKeepRequestPendingWhenSendingFails() {
         // GIVEN
-        EmailRequest request = EmailRequest.campaignShare(RECIPIENT, SLUG);
+        EmailRequest request = EmailRequest.campaignShare(1L, RECIPIENT, SLUG);
         CampaignResponse campaign = new CampaignResponse().projectName("Age of Skorpa");
         when(emailRequestRepository.findById(ID)).thenReturn(Optional.of(request));
         when(campaignSearchService.findActiveCampaignByProjectUrlName(SLUG)).thenReturn(Optional.of(campaign));

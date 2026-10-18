@@ -42,7 +42,7 @@ public class EmailRequestController implements EmailRequestsApi {
 
     @Override
     public ResponseEntity<EmailRequestResponse> getEmailRequest(UUID id) {
-        return ResponseEntity.of(emailRequestService.findById(id)
+        return ResponseEntity.of(emailRequestService.findByIdForCurrentUser(id)
                 .map(emailRequestMapper::toEmailRequestResponse));
     }
 }

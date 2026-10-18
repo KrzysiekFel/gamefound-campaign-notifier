@@ -55,7 +55,7 @@ class EmailRequestControllerTest {
     @Test
     void shouldAcceptEmailRequestAndReturnLocationOfStatusResource() {
         // GIVEN
-        EmailRequest emailRequest = EmailRequest.campaignShare("test@gamefound.local", SLUG);
+        EmailRequest emailRequest = EmailRequest.campaignShare(1L, "test@gamefound.local", SLUG);
         ReflectionTestUtils.setField(emailRequest, "id", ID);
         EmailRequestResponse response = new EmailRequestResponse()
                 .id(ID)
@@ -77,11 +77,11 @@ class EmailRequestControllerTest {
     @Test
     void shouldReturnEmailRequestStatus() {
         // GIVEN
-        EmailRequest emailRequest = EmailRequest.campaignShare("test@gamefound.local", SLUG);
+        EmailRequest emailRequest = EmailRequest.campaignShare(1L, "test@gamefound.local", SLUG);
         EmailRequestResponse response = new EmailRequestResponse()
                 .id(ID)
                 .status(EmailRequestResponse.StatusEnum.SENT);
-        when(emailRequestService.findById(ID)).thenReturn(Optional.of(emailRequest));
+        when(emailRequestService.findByIdForCurrentUser(ID)).thenReturn(Optional.of(emailRequest));
         when(emailRequestMapper.toEmailRequestResponse(emailRequest)).thenReturn(response);
 
         // WHEN
@@ -93,9 +93,9 @@ class EmailRequestControllerTest {
     }
 
     @Test
-    void shouldReturnNotFoundWhenEmailRequestDoesNotExist() {
+    void shouldReturnNotFoundWhenEmailRequestDoesNotExistOrIsNotOwned() {
         // GIVEN
-        when(emailRequestService.findById(ID)).thenReturn(Optional.empty());
+        when(emailRequestService.findByIdForCurrentUser(ID)).thenReturn(Optional.empty());
 
         // WHEN
         ResponseEntity<EmailRequestResponse> result = emailRequestController.getEmailRequest(ID);
